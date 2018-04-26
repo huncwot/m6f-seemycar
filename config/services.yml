@@ -1,0 +1,5 @@
+services:
+    huncwot.seemycar.event.listener:
+        class: huncwot\seemycar\event\listener
+        tags:
+            - { name: event.listener }
