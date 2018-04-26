@@ -1,0 +1,29 @@
+<!-- INCLUDE overall_header.html -->
+
+<h1>{L_SETTINGS}</h1>
+
+<p>{L_ACP_SEEMYCAR_EXPLAIN}</p>
+
+<form id="acp_prune" method="post" action="{U_ACTION}">
+    <fieldset>
+        <legend>{L_LOOK_UP_FORUM}</legend>
+        <dl>
+            <dt>
+                <label for="forum">{L_SELECT_FORUM}{L_COLON}</label>
+                <br>
+                <span>{L_LOOK_UP_FORUMS_EXPLAIN}</span>
+            </dt>
+            <dd>
+                <select id="forum" name="forum[]" multiple="multiple" size="15">{S_OPTIONS}</select>
+            </dd>
+        </dl>
+
+        <p class="submit-buttons">
+            {S_FORM_TOKEN}
+            <input class="button1" type="submit" name="submit" value="{L_SUBMIT}" />
+            <input class="button2" type="reset" name="reset" value="{L_RESET}" />
+        </p>
+    </fieldset>
+</form>
+
+<!-- INCLUDE overall_footer.html -->

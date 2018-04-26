@@ -5,3 +5,8 @@ services:
             - '@template'
         tags:
             - { name: event.listener }
+
+    huncwot.seemycar.service.main:
+        class: huncwot\seemycar\service\main
+        arguments:
+            - '@config'
