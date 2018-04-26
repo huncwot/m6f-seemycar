@@ -10,3 +10,4 @@ services:
         class: huncwot\seemycar\service\main
         arguments:
             - '@config'
+            - '@profilefields.manager'
