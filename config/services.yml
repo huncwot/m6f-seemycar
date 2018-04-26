@@ -3,6 +3,7 @@ services:
         class: huncwot\seemycar\event\listener
         arguments:
             - '@template'
+            - '@huncwot.seemycar.service.main'
         tags:
             - { name: event.listener }
 
