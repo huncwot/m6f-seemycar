@@ -1,4 +1,14 @@
 services:
+    huncwot.seemycar.cron.task.update_forums:
+        class: huncwot\seemycar\cron\task\update_forums
+        arguments:
+            - '@config'
+            - '@huncwot.seemycar.service.main'
+        calls:
+            - [set_name, [cron.task.seemycar.update_forums]]
+        tags:
+            - { name: cron.task }
+
     huncwot.seemycar.event.listener:
         class: huncwot\seemycar\event\listener
         arguments:
@@ -11,4 +21,5 @@ services:
         class: huncwot\seemycar\service\main
         arguments:
             - '@config'
+            - '@dbal.conn'
             - '@profilefields.manager'
