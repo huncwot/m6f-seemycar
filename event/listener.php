@@ -115,6 +115,7 @@ class listener implements EventSubscriberInterface
     public function viewtopic_get_post_data(data $event)
     {
         $this->load_language();
+        $this->load_forums_ids();
     }
 
     /**
@@ -143,9 +144,6 @@ class listener implements EventSubscriberInterface
             return;
         }
 
-
-        $this->load_forums_ids();
-
         if (false === in_array((int) $event['row']['forum_id'], $this->forums_ids)) {
             return;
         }
@@ -158,6 +156,7 @@ class listener implements EventSubscriberInterface
      */
     public function posting_modify_cannot_edit_conditions(data $event)
     {
+        $this->load_forums_ids();
 
         if ((int) $event['post_data']['poster_id'] !== $this->user_id) {
             return;
@@ -166,8 +165,6 @@ class listener implements EventSubscriberInterface
         if ((int) $event['post_data']['post_id'] !== (int) $event['post_data']['topic_first_post_id']) {
             return;
         }
-
-        $this->load_forums_ids();
 
         if (false === in_array((int) $event['post_data']['forum_id'], $this->forums_ids)) {
             return;
