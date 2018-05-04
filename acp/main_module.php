@@ -2,7 +2,9 @@
 
 namespace huncwot\seemycar\acp;
 
-use phpbb\db\driver\driver_interface;
+use huncwot\seemycar\service\main;
+use phpbb\config\config;
+use phpbb\language\language;
 use phpbb\request\request;
 use phpbb\template\template;
 use phpbb\user;
@@ -21,12 +23,13 @@ class main_module
      * @global ContainerInterface $phpbb_container
      * @global request $request
      * @global template $template
+     * @global config $config
      * @param string $id
      * @param string $mode
      */
     public function main($id, $mode)
     {
-        global $user, $phpbb_container, $request, $template;
+        global $user, $phpbb_container, $request, $template, $config;
 
         $this->page_title = $user->lang('ACP_SEEMYCAR_SETTINGS');
         $this->tpl_name = 'main_body';
@@ -34,86 +37,61 @@ class main_module
         $form_name = 'acp_seemycar_settings';
         add_form_key($form_name);
 
-        $forums_ids = $phpbb_container->get('huncwot.seemycar.service.main')->get_forums_ids();
+        /* @var $main main */
+        $main = $phpbb_container->get('huncwot.seemycar.service.main');
 
-        if ($request->is_set_post('forum')) {
+        $current_forums_ids = $main->get_forums_ids();
+        $current_update_frequency = (int) $config['seemycar_update'];
+
+        if ($request->is_set_post('submit')) {
             if (false === check_form_key($form_name)) {
                 trigger_error($user->lang['FORM_INVALID'].adm_back_link($this->u_action), E_USER_WARNING);
             }
 
-            $this->update_settings($forums_ids, $request->variable('forum', array(0)));
+            $new_forums_ids = $request->variable('forum', array(0));
+            $new_frequency = $request->variable('frequency', 14400);
+            $update_now = $request->variable('update_now', 0);
+
+            if ($current_forums_ids !== $new_forums_ids) {
+                $config->set('seemycar_data', json_encode($new_forums_ids));
+            }
+
+            if ($current_update_frequency !== $new_frequency) {
+                $config->set('seemycar_update', $new_frequency);
+            }
+
+            if (1 === $update_now) {
+                $main->update_links();
+            }
 
             trigger_error($user->lang('CONFIG_UPDATED').adm_back_link($this->u_action));
         }
 
         $template->assign_vars(array(
             'U_ACTION' => $this->u_action,
-            'S_OPTIONS' => make_forum_select($forums_ids),
+            'S_FORUM_OPTIONS' => make_forum_select($current_forums_ids),
+            'S_FREQUENCY_OPTIONS' => $this->make_frequency_select($current_update_frequency),
         ));
     }
 
     /**
      * @global ContainerInterface $phpbb_container
-     * @global driver_interface $db
-     * @param array $old_forums_ids
-     * @param array $new_forums_ids
+     * @param integer $update_frequency
+     * @return string
      */
-    protected function update_settings(array $old_forums_ids, array $new_forums_ids)
+    function make_frequency_select($update_frequency)
     {
-        global $phpbb_container, $db;
+        global $phpbb_container;
 
-        if ($old_forums_ids === $new_forums_ids) {
-            return;
+        /* @var $language language */
+        $language = $phpbb_container->get('language');
+
+        $options = '';
+        foreach (array(1 => 3600, 2 => 7200, 3 => 10800, 4 => 14400, 6 => 21600, 12 => 43200, 24 => 86400) as $hour => $seconds) {
+            $selected = $update_frequency === $seconds ? ' selected="selected"' : '';
+            $options .= "<option value=\"{$seconds}\"{$selected}>{$language->lang_array('HOURLY_INTERVALS', array($hour))}</option>";
         }
 
-        $service = $phpbb_container->get('huncwot.seemycar.service.main');
-
-        $out_forums_ids = array_diff($old_forums_ids, $new_forums_ids);
-        $in_forums_ids = array_diff($new_forums_ids, $old_forums_ids);
-
-        $out_forums_data = true !== empty($out_forums_ids) ? $this->get_forums_data($out_forums_ids) : array();
-        $in_forums_data = true !== empty($in_forums_ids) ? $this->get_forums_data($in_forums_ids) : array();
-
-        $db->sql_transaction('begin');
-
-        if (true !== empty($out_forums_data)) {
-            $sql = 'UPDATE '.PROFILE_FIELDS_DATA_TABLE.'
-			SET '.$db->sql_build_array('UPDATE', array('pf_seemycar_data' => '')).'
-			WHERE '.$db->sql_in_set('user_id', array_keys(array_diff_key($out_forums_data, $in_forums_data)), false, true);
-            $db->sql_query($sql);
-        }
-
-        if (true !== empty($in_forums_data)) {
-            foreach ($in_forums_data as $data) {
-                $service->update_profile_field_data($data['topic_poster'], $data['forum_id'], $data['topic_id']);
-            }
-        }
-
-        $service->set_forums_ids($new_forums_ids);
-
-        $db->sql_transaction('commit');
-    }
-
-    /**
-     * @global driver_interface $db
-     * @param array $forums_ids
-     */
-    protected function get_forums_data(array $forums_ids)
-    {
-        global $db;
-
-        $sql = 'SELECT topic_poster, topic_id, forum_id
-            FROM '.TOPICS_TABLE.'
-            WHERE '.$db->sql_in_set('forum_id', $forums_ids, false, true).' AND topic_status = 0 AND topic_type = 0 AND topic_visibility = 1
-            ORDER BY topic_poster, topic_time';
-        $result = $db->sql_query($sql);
-
-        $data = array();
-        while ($row = $db->sql_fetchrow($result)) {
-            $data[$row['topic_poster']] = $row;
-        }
-        $db->sql_freeresult($result);
-
-        return $data;
+        return $options;
     }
 }

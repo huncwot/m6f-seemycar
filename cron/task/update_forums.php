@@ -35,7 +35,6 @@ class update_forums extends base
 
     public function run()
     {
-        $this->config->set('seemycar_last_update', time(), false);
         $this->main->update_links();
     }
 }
