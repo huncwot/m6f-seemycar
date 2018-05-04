@@ -4,6 +4,7 @@ namespace huncwot\seemycar\event;
 
 use huncwot\seemycar\service\main;
 use phpbb\event\data;
+use phpbb\language\language;
 use phpbb\template\template;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -13,6 +14,11 @@ class listener implements EventSubscriberInterface
      * @var template
      */
     protected $template;
+
+    /**
+     * @var language
+     */
+    protected $language;
 
     /**
      * @var main
@@ -37,9 +43,10 @@ class listener implements EventSubscriberInterface
     /**
      * @param template $template
      */
-    public function __construct(template $template, main $main)
+    public function __construct(template $template, language $language, main $main)
     {
         $this->template = $template;
+        $this->language = $language;
         $this->main = $main;
     }
 
@@ -52,6 +59,7 @@ class listener implements EventSubscriberInterface
             'core.user_setup' => 'user_setup',
             'core.grab_profile_fields_data' => 'grab_profile_fields_data',
             'core.memberlist_view_profile' => 'memberlist_view_profile',
+            'core.viewtopic_get_post_data' => 'viewtopic_get_post_data',
             'core.viewtopic_modify_post_row' => 'viewtopic_modify_post_row',
             'core.viewtopic_modify_post_action_conditions' => 'viewtopic_modify_post_action_conditions',
             'core.posting_modify_cannot_edit_conditions' => 'posting_modify_cannot_edit_conditions',
@@ -63,13 +71,6 @@ class listener implements EventSubscriberInterface
      */
     public function user_setup(data $event)
     {
-        $lang_set_ext = $event['lang_set_ext'];
-        $lang_set_ext[] = array(
-            'ext_name' => 'huncwot/seemycar',
-            'lang_set' => 'common',
-        );
-        $event['lang_set_ext'] = $lang_set_ext;
-
         $this->user_id = (int) $event['user_data']['user_id'];
     }
 
@@ -103,8 +104,17 @@ class listener implements EventSubscriberInterface
     {
         $member_id = (int) $event['member']['user_id'];
         if (true === isset($this->profile_fields[$member_id])) {
+            $this->load_language();
             $this->template->assign_var('U_SEEMYCAR', $this->profile_fields[$member_id]);
         }
+    }
+
+    /**
+     * @param data $event
+     */
+    public function viewtopic_get_post_data(data $event)
+    {
+        $this->load_language();
     }
 
     /**
@@ -164,6 +174,11 @@ class listener implements EventSubscriberInterface
         }
 
         $event['force_edit_allowed'] = true;
+    }
+
+    protected function load_language()
+    {
+        $this->language->add_lang('common', 'huncwot/seemycar');
     }
 
     protected function load_forums_ids()
