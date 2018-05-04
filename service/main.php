@@ -71,6 +71,8 @@ class main
             $this->manager->update_profile_field_data($user_id, array('pf_seemycar_data' => $link));
         }
 
+        $this->config->set('seemycar_last_update', time(), false);
+
         $this->db->sql_transaction('commit');
     }
 
