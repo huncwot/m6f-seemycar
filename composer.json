@@ -1,10 +1,10 @@
 {
     "name": "huncwot/seemycar",
     "type": "phpbb-extension",
-    "description": "",
-    "homepage": "",
-    "version": "1.0.0-dev",
-    "time": "2018-03-29",
+    "description": "The author of the topic in selected forums will be assigned with a link to that topic. This link will be visible in this user profile and next to each his post. The author of the topic has the right to freely edit that topic's first post.",
+    "homepage": "https://github.com/huncwot/phpbb-m6f-seemycar",
+    "version": "1.0.0",
+    "time": "2018-05-06",
     "license": "GPL-2.0-only",
     "authors": [
         {
@@ -18,10 +18,18 @@
         "php": ">=5.3.3",
         "composer/installers": "~1.0"
     },
+    "require-dev": {
+        "phing/phing": "^2.16"
+    },
     "extra": {
         "display-name": "See My Car",
         "soft-require": {
             "phpbb/phpbb": ">=3.2.0,<3.3.0"
+        },
+        "version-check": {
+            "host": "huncwot.github.io",
+            "directory": "/phpbb/extensions/seemycar",
+            "filename": "versions.json"
         }
     }
 }
