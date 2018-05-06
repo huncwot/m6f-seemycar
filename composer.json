@@ -29,7 +29,8 @@
         "version-check": {
             "host": "huncwot.github.io",
             "directory": "/phpbb/extensions/seemycar",
-            "filename": "versions.json"
+            "filename": "versions.json",
+            "ssl": true
         }
     }
 }

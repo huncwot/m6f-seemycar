@@ -81,7 +81,7 @@ class main
         $sql = 'SELECT topic_poster, topic_id, forum_id
             FROM '.TOPICS_TABLE.'
             WHERE '.$this->db->sql_in_set('forum_id', $forums_ids, false, true).' AND topic_type = '.POST_NORMAL.' AND topic_visibility = '.ITEM_APPROVED.'
-        ORDER BY topic_poster, topic_time';
+            ORDER BY topic_poster, topic_time';
         $result = $this->db->sql_query($sql);
 
         $data = array();
