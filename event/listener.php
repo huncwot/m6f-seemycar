@@ -109,10 +109,7 @@ class listener implements EventSubscriberInterface
         }
     }
 
-    /**
-     * @param data $event
-     */
-    public function viewtopic_get_post_data(data $event)
+    public function viewtopic_get_post_data()
     {
         $this->load_language();
         $this->load_forums_ids();

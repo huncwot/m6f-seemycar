@@ -4,7 +4,6 @@ namespace huncwot\seemycar\acp;
 
 class main_info
 {
-
     public function module()
     {
         return array(
